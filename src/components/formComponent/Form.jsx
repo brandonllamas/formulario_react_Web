@@ -1,6 +1,7 @@
 import "./Form.css";
 import React from "react";
 import { async } from "@firebase/util";
+import {fire } from '../../services/firebase'
 
 const FormComponent = () => {
   const [tareas, setTareas] = React.useState([]);
@@ -17,7 +18,6 @@ const FormComponent = () => {
   const [otrasTareasError, setOtrasTareasError] = React.useState("");
   //estado tarea
   const [estadoTareas, setEstadoTareas] = React.useState("");
-  const [estadoTareasError, setEstadoTareasError] = React.useState("");
   //nombre de usuario
   const [nombreDeUsuario, setNombreDeUsuario] = React.useState("");
   const [nombreDeUsuarioError, setNombreDeUsuarioError] = React.useState("");
@@ -30,13 +30,85 @@ const FormComponent = () => {
   const [modoEdicion, setModoEdicion] = React.useState(false);
 
 
+//CAMBIOS
+
+
+React.useEffect(()=>{
+  const obtenerDatos = async () =>{
+      try{
+          const db = fire.firestore()
+          const data = await db.collection('frutas').get()
+          const array = data.docs.map(item =>(
+              {
+                  id:item.id, ...item.data()
+              }
+          ))
+          // setLista(array)
+
+      }catch(error){
+          console.log(error)
+      }
+  }
+  obtenerDatos()
+
+})
 
   //metodos
   const editar = async (e) =>{
     e.preventDefault()
+    if (!valid) {
+      return;
+    }
 
+
+    try {
+      const db = fire.firestore()
+      const nuevaTarea = {
+        nameTarea:nameTarea,
+        decripcionTarea:decripcionTarea,
+        otrasTareas:otrasTareas,
+        nombreDeUsuario:nombreDeUsuario,
+        apellidoDeUsuario:apellidoDeUsuario,
+        estadoTareas:estadoTareas,
+        
+    }
+    } catch (error) {
+      console.log(error)
+      
+    }
+    limpiarform()
   }
-   
+  const valid = async () =>{
+   var error = false;
+
+    if (!nameTarea.trim()) {
+      setNameTareaError('Campo obligatorio')
+      error = true;
+    }
+
+    if (!decripcionTarea.trim()) {
+      setDecripcionTareaError('Descripcion obligatorio')
+      error = true;
+    }
+
+    if (!otrasTareas.trim()) {
+      setOtrasTareasError('otras tareas obligatorio')
+      error = true;
+    }
+
+    if (!nombreDeUsuario.trim()) {
+      setNombreDeUsuarioError('Nombre usuario obligatorio')
+      error = true;
+    }
+
+    if (!apellidoDeUsuario.trim()) {
+      setApellidoDeUsuarioError('apellido usuario obligatorio')
+      error = true;
+    }
+
+    return error;
+  }
+
   const guardarDatos = async (e) =>{
     e.preventDefault()
 
@@ -60,7 +132,7 @@ const FormComponent = () => {
       <div className="row">
         <div className="col">
           <a
-            class="btn btn-primary"
+            className="btn btn-primary"
             data-bs-toggle="collapse"
             href="#collapseExample"
             role="button"
@@ -76,23 +148,23 @@ const FormComponent = () => {
         <div className="row">
           <div className="col">
             <div
-              class={editmode ? " collapse show" : "collapse"}
+              className={editmode ? " collapse show" : "collapse"}
               id="collapseExample"
             >
-              <div class="card card-body">
+              <div className="card card-body">
                 <div className="mb-3">
                   Ingrese el nombre y la descripcion de la tarea para agregarla
                 </div>
                 <div className="row">
                   <div className="col">
-                    <div class="mb-3">
-                      <label for="xw1" class="form-label">
+                    <div className="mb-3">
+                      <label  className="form-label">
                         Nombre del usuario
                       </label>
                       <input
                         type="text"
-                        class={
-                          otrasTareasError == ""
+                        className={
+                          nombreDeUsuarioError == ""
                             ? "form-control"
                             : " form-control is-invalid"
                         }
@@ -100,9 +172,9 @@ const FormComponent = () => {
                         onChange={(e) => setNombreDeUsuario(e.target.value)}
                       />
 
-                      {otrasTareasError != "" ? (
-                        <label for="floatingInputInvalid">
-                          {otrasTareasError}
+                      {nombreDeUsuarioError != "" ? (
+                        <label  >
+                          {nombreDeUsuarioError}
                         </label>
                       ) : (
                         ""
@@ -111,14 +183,14 @@ const FormComponent = () => {
                   </div>
 
                   <div className="col">
-                    <div class="mb-3">
-                      <label for="xw1" class="form-label">
+                    <div className="mb-3">
+                      <label  className="form-label">
                         Apellido del usuario
                       </label>
                       <input
                         type="text"
-                        class={
-                          otrasTareasError == ""
+                        className={
+                          apellidoDeUsuarioError == ""
                             ? "form-control"
                             : " form-control is-invalid"
                         }
@@ -126,9 +198,9 @@ const FormComponent = () => {
                         onChange={(e) => setApellidoDeUsuario(e.target.value)}
                       />
 
-                      {otrasTareasError != "" ? (
-                        <label for="floatingInputInvalid">
-                          {otrasTareasError}
+                      {apellidoDeUsuarioError != "" ? (
+                        <label  >
+                          {apellidoDeUsuarioError}
                         </label>
                       ) : (
                         ""
@@ -137,13 +209,13 @@ const FormComponent = () => {
                   </div>
                 </div>
 
-                <div class="mb-3">
-                  <label for="xw1" class="form-label">
+                <div className="mb-3">
+                  <label   className="form-label">
                     Nombre de la actividad
                   </label>
                   <input
                     type="text"
-                    class={
+                    className={
                       nameTareaError == ""
                         ? "form-control"
                         : " form-control is-invalid"
@@ -153,19 +225,19 @@ const FormComponent = () => {
                   />
 
                   {nameTareaError != "" ? (
-                    <label for="floatingInputInvalid">{nameTareaError}</label>
+                    <label  >{nameTareaError}</label>
                   ) : (
                     ""
                   )}
                 </div>
 
-                <div class="mb-3">
-                  <label for="xw1" class="form-label">
+                <div className="mb-3">
+                  <label   className="form-label">
                     Otras notas
                   </label>
                   <input
                     type="text"
-                    class={
+                    className={
                       otrasTareasError == ""
                         ? "form-control"
                         : " form-control is-invalid"
@@ -175,18 +247,18 @@ const FormComponent = () => {
                   />
 
                   {otrasTareasError != "" ? (
-                    <label for="floatingInputInvalid">{otrasTareasError}</label>
+                    <label >{otrasTareasError}</label>
                   ) : (
                     ""
                   )}
                 </div>
 
-                <div class="mb-3">
-                  <label for="exampleFormControlTextarea1" class="form-label">
+                <div className="mb-3">
+                  <label   className="form-label">
                     Descripcion
                   </label>
                   <textarea
-                    class="form-control"
+                    className="form-control"
                     id="exampleFormControlTextarea1"
                     rows="3"
                     value={decripcionTarea}
@@ -199,12 +271,12 @@ const FormComponent = () => {
                   )}
                 </div>
 
-                <div class="mb-3">
-                  <label for="exampleFormControlTextarea1" class="form-label">
+                <div className="mb-3">
+                  <label   className="form-label">
                     Origen de actividad
                   </label>
                   <select
-                    class="form-select"
+                    className="form-select"
                     aria-label="Default select example"
                     value={origenActividad}
                     onChange={(e) => setOrigenActividad(e.target.value)}
@@ -214,12 +286,12 @@ const FormComponent = () => {
                   </select>
                 </div>
 
-                <div class="mb-3">
-                  <label for="exampleFormControlTextarea1" class="form-label">
+                <div className="mb-3">
+                  <label   className="form-label">
                     Estado
                   </label>
                   <select
-                    class="form-select"
+                    className="form-select"
                     aria-label="Default select example"
                     value={estadoTareas}
                     onChange={(e) => setEstadoTareas(e.target.value)}
