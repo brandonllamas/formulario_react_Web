@@ -2,13 +2,13 @@ import firebase from 'firebase/app';
 import 'firebase/firestore'
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDIF0CN-P5h77OqG4eGtdJhXCnSoYh-LYo",
-    authDomain: "reacttest-a46d9.firebaseapp.com",
-    projectId: "reacttest-a46d9",
-    storageBucket: "reacttest-a46d9.appspot.com",
-    messagingSenderId: "566545497996",
-    appId: "1:566545497996:web:405d62932870d299f860a9",
-    measurementId: "G-7GX6TNL1G0"
+    apiKey: "AIzaSyCvPcWO5stltCXkQyJYYKsR-Qi-vNWVk3M",
+    authDomain: "reactv2-13e9f.firebaseapp.com",
+    projectId: "reactv2-13e9f",
+    storageBucket: "reactv2-13e9f.appspot.com",
+    messagingSenderId: "162011126858",
+    appId: "1:162011126858:web:9887c03e6645f5664f1ab3",
+    measurementId: "G-R6ZYT1DQD4"
 };
 // Initialize Firebase
 var fire = firebase.initializeApp(firebaseConfig);

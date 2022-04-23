@@ -1,7 +1,9 @@
 import "./Form.css";
 import React from "react";
 import { async } from "@firebase/util";
-import {fire } from '../../services/firebase'
+import { fire } from "../../services/firebase";
+import { nanoid } from "nanoid";
+import Card from "../cardComponent/Card";
 
 const FormComponent = () => {
   const [tareas, setTareas] = React.useState([]);
@@ -24,105 +26,144 @@ const FormComponent = () => {
 
   //apellido de usuario
   const [apellidoDeUsuario, setApellidoDeUsuario] = React.useState("");
-  const [apellidoDeUsuarioError, setApellidoDeUsuarioError] = React.useState("");
+  const [apellidoDeUsuarioError, setApellidoDeUsuarioError] =
+    React.useState("");
 
   //modo edicion
   const [modoEdicion, setModoEdicion] = React.useState(false);
 
+  //CAMBIOS
 
-//CAMBIOS
+  React.useEffect(() => {
+    
+    obtenerDatos();
+    // console.log("array");
 
+  },[]);
 
-React.useEffect(()=>{
-  const obtenerDatos = async () =>{
-      try{
-          const db = fire.firestore()
-          const data = await db.collection('frutas').get()
-          const array = data.docs.map(item =>(
-              {
-                  id:item.id, ...item.data()
-              }
-          ))
-          // setLista(array)
-
-      }catch(error){
-          console.log(error)
-      }
-  }
-  obtenerDatos()
-
-})
-
+  const obtenerDatos = async () => {
+    try {
+      const db = fire.firestore();
+      const data = await db.collection("tareas").get();
+      const array = data.docs.map((item) => ({
+        id: item.id,
+        ...item.data(),
+      }));
+      setTareas(array)
+      console.log(array);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   //metodos
-  const editar = async (e) =>{
-    e.preventDefault()
+  const editar = async (e) => {
+    e.preventDefault();
     if (!valid) {
       return;
     }
 
-
     try {
-      const db = fire.firestore()
+      const db = fire.firestore();
       const nuevaTarea = {
-        nameTarea:nameTarea,
-        decripcionTarea:decripcionTarea,
-        otrasTareas:otrasTareas,
-        nombreDeUsuario:nombreDeUsuario,
-        apellidoDeUsuario:apellidoDeUsuario,
-        estadoTareas:estadoTareas,
-        
-    }
+        nameTarea: nameTarea,
+        decripcionTarea: decripcionTarea,
+        otrasTareas: otrasTareas,
+        nombreDeUsuario: nombreDeUsuario,
+        apellidoDeUsuario: apellidoDeUsuario,
+        estadoTareas: estadoTareas,
+      };
     } catch (error) {
-      console.log(error)
-      
+      console.log(error);
     }
-    limpiarform()
-  }
-  const valid = async () =>{
-   var error = false;
+    limpiarform();
+  };
+  const valid = async () => {
+    var error = false;
 
     if (!nameTarea.trim()) {
-      setNameTareaError('Campo obligatorio')
+      setNameTareaError("Campo obligatorio");
       error = true;
     }
 
     if (!decripcionTarea.trim()) {
-      setDecripcionTareaError('Descripcion obligatorio')
+      setDecripcionTareaError("Descripcion obligatorio");
       error = true;
     }
 
     if (!otrasTareas.trim()) {
-      setOtrasTareasError('otras tareas obligatorio')
+      setOtrasTareasError("otras tareas obligatorio");
       error = true;
     }
 
     if (!nombreDeUsuario.trim()) {
-      setNombreDeUsuarioError('Nombre usuario obligatorio')
+      setNombreDeUsuarioError("Nombre usuario obligatorio");
       error = true;
     }
 
     if (!apellidoDeUsuario.trim()) {
-      setApellidoDeUsuarioError('apellido usuario obligatorio')
+      setApellidoDeUsuarioError("apellido usuario obligatorio");
       error = true;
     }
 
     return error;
-  }
+  };
 
-  const guardarDatos = async (e) =>{
-    e.preventDefault()
+  const guardarDatos = async (e) => {
+    e.preventDefault();
 
-  }
+    // console.log(await valid());
 
-  const limpiarform = async () =>{
-    setNameTarea('')
-    setDecripcionTarea('')
-    setOtrasTareas('')
-    setEstadoTareas('')
-    setNombreDeUsuario('')
-    setApellidoDeUsuario('')
-  }
+    if (await valid()) {
+      console.log("entra aca");
+      return;
+    }
+    console.log("valid()");
 
+    try {
+      const db = fire.firestore();
+      const nuevaTarea = {
+        nameTarea: nameTarea,
+        decripcionTarea: decripcionTarea,
+        otrasTareas: otrasTareas,
+        nombreDeUsuario: nombreDeUsuario,
+        apellidoDeUsuario: apellidoDeUsuario,
+        estadoTareas: estadoTareas,
+      };
+      await db.collection('tareas').add(nuevaTarea)
+      setTareas([...tareas,
+        {
+          id:nanoid(),
+          nameTarea: nameTarea,
+          decripcionTarea: decripcionTarea,
+          otrasTareas: otrasTareas,
+          nombreDeUsuario: nombreDeUsuario,
+          apellidoDeUsuario: apellidoDeUsuario,
+          estadoTareas: estadoTareas,
+        }])
+    } catch (error) {
+      console.log(error);
+    }
+    limpiarform();
+    obtenerDatos();
+  };
+
+  const limpiarform = async () => {
+    setNameTarea("");
+    setDecripcionTarea("");
+    setOtrasTareas("");
+    setEstadoTareas("");
+    setNombreDeUsuario("");
+    setApellidoDeUsuario("");
+
+    //errores
+
+    setDecripcionTareaError("");
+    setApellidoDeUsuarioError("");
+    setNombreDeUsuarioError("");
+    setOtrasTareasError("");
+    setNameTareaError("")
+    setEditMode(false)
+  };
 
   //origen actividad
   const [origenActividad, setOrigenActividad] = React.useState("");
@@ -144,7 +185,7 @@ React.useEffect(()=>{
         </div>
       </div>
 
-      <form onSubmit={modoEdicion ? editar: guardarDatos}>
+      <form onSubmit={modoEdicion ? editar : guardarDatos}>
         <div className="row">
           <div className="col">
             <div
@@ -158,13 +199,11 @@ React.useEffect(()=>{
                 <div className="row">
                   <div className="col">
                     <div className="mb-3">
-                      <label  className="form-label">
-                        Nombre del usuario
-                      </label>
+                      <label className="form-label">Nombre del usuario</label>
                       <input
                         type="text"
                         className={
-                          nombreDeUsuarioError == ""
+                          nombreDeUsuarioError === ""
                             ? "form-control"
                             : " form-control is-invalid"
                         }
@@ -172,10 +211,8 @@ React.useEffect(()=>{
                         onChange={(e) => setNombreDeUsuario(e.target.value)}
                       />
 
-                      {nombreDeUsuarioError != "" ? (
-                        <label  >
-                          {nombreDeUsuarioError}
-                        </label>
+                      {nombreDeUsuarioError !== "" ? (
+                        <label className="text-danger">{nombreDeUsuarioError}</label>
                       ) : (
                         ""
                       )}
@@ -184,13 +221,11 @@ React.useEffect(()=>{
 
                   <div className="col">
                     <div className="mb-3">
-                      <label  className="form-label">
-                        Apellido del usuario
-                      </label>
+                      <label className="form-label">Apellido del usuario</label>
                       <input
                         type="text"
                         className={
-                          apellidoDeUsuarioError == ""
+                          apellidoDeUsuarioError === ""
                             ? "form-control"
                             : " form-control is-invalid"
                         }
@@ -198,10 +233,8 @@ React.useEffect(()=>{
                         onChange={(e) => setApellidoDeUsuario(e.target.value)}
                       />
 
-                      {apellidoDeUsuarioError != "" ? (
-                        <label  >
-                          {apellidoDeUsuarioError}
-                        </label>
+                      {apellidoDeUsuarioError !== "" ? (
+                        <label className="text-danger">{apellidoDeUsuarioError}</label>
                       ) : (
                         ""
                       )}
@@ -210,13 +243,11 @@ React.useEffect(()=>{
                 </div>
 
                 <div className="mb-3">
-                  <label   className="form-label">
-                    Nombre de la actividad
-                  </label>
+                  <label className="form-label">Nombre de la actividad</label>
                   <input
                     type="text"
                     className={
-                      nameTareaError == ""
+                      nameTareaError === ""
                         ? "form-control"
                         : " form-control is-invalid"
                     }
@@ -224,21 +255,15 @@ React.useEffect(()=>{
                     onChange={(e) => setNameTarea(e.target.value)}
                   />
 
-                  {nameTareaError != "" ? (
-                    <label  >{nameTareaError}</label>
-                  ) : (
-                    ""
-                  )}
+                  {nameTareaError !== "" ? <label>{nameTareaError}</label> : ""}
                 </div>
 
                 <div className="mb-3">
-                  <label   className="form-label">
-                    Otras notas
-                  </label>
+                  <label className="form-label">Otras notas</label>
                   <input
                     type="text"
                     className={
-                      otrasTareasError == ""
+                      otrasTareasError === ""
                         ? "form-control"
                         : " form-control is-invalid"
                     }
@@ -246,35 +271,36 @@ React.useEffect(()=>{
                     onChange={(e) => setOtrasTareas(e.target.value)}
                   />
 
-                  {otrasTareasError != "" ? (
-                    <label >{otrasTareasError}</label>
+                  {otrasTareasError !== "" ? (
+                    <label className="text-danger">{otrasTareasError}</label>
                   ) : (
                     ""
                   )}
                 </div>
 
                 <div className="mb-3">
-                  <label   className="form-label">
-                    Descripcion
-                  </label>
+                  <label className="form-label">Descripcion</label>
                   <textarea
-                    className="form-control"
+                   className={
+                    otrasTareasError === ""
+                      ? "form-control"
+                      : " form-control is-invalid"
+                  }
+                    // className="form-control"
                     id="exampleFormControlTextarea1"
                     rows="3"
                     value={decripcionTarea}
                     onChange={(e) => setDecripcionTarea(e.target.value)}
                   ></textarea>
-                  {decripcionTareaError != "" ? (
-                    <label for="floatingInputInvalid">{otrasTareasError}</label>
+                  {decripcionTareaError !== "" ? (
+                    <label  className="text-danger">{otrasTareasError}</label>
                   ) : (
                     ""
                   )}
                 </div>
 
                 <div className="mb-3">
-                  <label   className="form-label">
-                    Origen de actividad
-                  </label>
+                  <label className="form-label">Origen de actividad</label>
                   <select
                     className="form-select"
                     aria-label="Default select example"
@@ -287,9 +313,7 @@ React.useEffect(()=>{
                 </div>
 
                 <div className="mb-3">
-                  <label   className="form-label">
-                    Estado
-                  </label>
+                  <label className="form-label">Estado</label>
                   <select
                     className="form-select"
                     aria-label="Default select example"
@@ -313,6 +337,21 @@ React.useEffect(()=>{
           </div>
         </div>
       </form>
+
+
+      <div className="row mt-5">
+          {
+            tareas.map( (item) =>(
+            <div className="col " key={item.id}>
+                {/* <p >{item.apellidoDeUsuario}</p> */}
+              {/* <p>{item.id}</p> */}
+              {/* {item.nombreDeUsuario} */}
+              {/* {item.id} */}
+              <Card item={item} ></Card>
+            </div>
+            ) )
+          }
+        </div>
     </div>
   );
 };
