@@ -8,6 +8,7 @@ import Card from "../cardComponent/Card";
 const FormComponent = () => {
   const [tareas, setTareas] = React.useState([]);
   const [editmode, setEditMode] = React.useState(false);
+  const [idEdit, setIdEdit] = React.useState(false);
 
   //nombre tarea
   const [nameTarea, setNameTarea] = React.useState("");
@@ -146,6 +147,45 @@ const FormComponent = () => {
     limpiarform();
     obtenerDatos();
   };
+
+  const eliminar= async (id) =>{
+    console.log(id);
+    try{
+        const db = fire.firestore()
+        await db.collection('tareas').doc(id).delete()
+        // const aux = fire.filter(item => item.id !== id)
+        obtenerDatos()
+    }catch(error){
+        console.log(error)
+    }
+}
+
+const openEdit= async (item) =>{
+ 
+  try{
+    setIdEdit(item.id)
+    setNameTarea(item.nameTarea);
+    setDecripcionTarea(item.decripcionTarea);
+    setOtrasTareas(item.otrasTareas);
+    setEstadoTareas(item.estadoTareas);
+    setNombreDeUsuario(item.nombreDeUsuario);
+    setApellidoDeUsuario(item.apellidoDeUsuario);
+
+    //errores
+
+    setDecripcionTareaError("");
+    setApellidoDeUsuarioError("");
+    setNombreDeUsuarioError("");
+    setOtrasTareasError("");
+    setNameTareaError("")
+    setEditMode(true)
+    setModoEdicion(true)
+
+  }catch(error){
+      console.log(error)
+  }
+}
+
 
   const limpiarform = async () => {
     setNameTarea("");
@@ -347,7 +387,7 @@ const FormComponent = () => {
               {/* <p>{item.id}</p> */}
               {/* {item.nombreDeUsuario} */}
               {/* {item.id} */}
-              <Card item={item} ></Card>
+              <Card item={item} methondev={eliminar} editar={openEdit}></Card>
             </div>
             ) )
           }
