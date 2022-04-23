@@ -59,9 +59,14 @@ const FormComponent = () => {
   //metodos
   const editar = async (e) => {
     e.preventDefault();
-    if (!valid) {
+    
+    // console.log(await valid());
+
+    if (await valid()) {
+      console.log("entra aca");
       return;
     }
+    console.log("valid()");
 
     try {
       const db = fire.firestore();
@@ -73,11 +78,15 @@ const FormComponent = () => {
         apellidoDeUsuario: apellidoDeUsuario,
         estadoTareas: estadoTareas,
       };
+      await db.collection('tareas').doc(idEdit).update(nuevaTarea)
+   
     } catch (error) {
       console.log(error);
     }
     limpiarform();
+    obtenerDatos();
   };
+
   const valid = async () => {
     var error = false;
 
