@@ -1,6 +1,6 @@
 import "./Form.css";
 import React from "react";
-import { async } from "@firebase/util";
+// import { async } from "@firebase/util";
 import { fire } from "../../services/firebase";
 import { nanoid } from "nanoid";
 import Card from "../cardComponent/Card";
