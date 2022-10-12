@@ -1,5 +1,4 @@
 import React from "react";
-import image from "../../assets/placeholder.png";
 
 const Card = ({ item, methondev, editar }) => {
   //   console.log(item)
